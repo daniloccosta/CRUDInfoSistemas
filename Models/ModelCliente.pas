@@ -28,6 +28,7 @@ implementation
 
 procedure TModelCliente.Add;
 begin
+  Cliente.Id := FClientes.Count + 1;
   FClientes.Add(Cliente);
 end;
 

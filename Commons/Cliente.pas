@@ -30,6 +30,7 @@ type
     function GetEndereco: TEndereco;
     procedure SetEndereco(Value: TEndereco);
   public
+    constructor Create;
     property Id: Integer read GetId write SetId;
     property Nome: String read GetNome write SetNome;
     property Identidade: String read GetIdentidade write SetIdentidade;
@@ -42,6 +43,11 @@ type
 implementation
 
 { TCliente }
+
+constructor TCliente.Create;
+begin
+  FEndereco := TEndereco.Create;
+end;
 
 function TCliente.GetCPF: String;
 begin

@@ -1,81 +1,130 @@
 ﻿[Label1]
-Coordinates=128,280,53,58
+Coordinates=128,280,46,51
 
 [Label11]
-Coordinates=250,10,60,58
+Coordinates=250,10,52,51
 
 [edComplemento]
-Coordinates=10,280,108,58
+Coordinates=10,280,95,51
 
 [Label8]
-Coordinates=10,212,53,58
+Coordinates=10,212,46,51
 
 [edEmail]
-Coordinates=378,144,61,58
+Coordinates=378,144,53,51
 
 [edIdentidade]
-Coordinates=279,144,89,58
+Coordinates=279,144,77,51
 
 [Label3]
-Coordinates=316,212,53,58
+Coordinates=316,212,46,51
 
 [Label4]
-Coordinates=143,144,53,58
+Coordinates=143,144,46,51
 
 [Label7]
-Coordinates=553,144,53,58
+Coordinates=553,144,46,51
 
 [Label9]
-Coordinates=384,10,53,58
+Coordinates=384,10,46,51
 
 [edNome]
-Coordinates=447,10,63,58
+Coordinates=447,10,54,51
+Visible=True
 
 [Label10]
-Coordinates=246,212,60,58
+Coordinates=246,212,52,51
 
 [Label13]
-Coordinates=520,10,60,58
+Coordinates=520,10,52,51
 
 [Label5]
-Coordinates=521,212,53,58
+Coordinates=521,212,46,51
 
 [edNumero]
-Coordinates=73,212,74,58
+Coordinates=73,212,65,51
 
 [edBairro]
-Coordinates=206,144,63,58
+Coordinates=206,144,56,51
 
 [edCidade]
-Coordinates=379,212,69,58
+Coordinates=379,212,60,51
 
 [edTelefone]
-Coordinates=157,212,79,58
+Coordinates=157,212,68,51
 
 [edCEP]
-Coordinates=185,10,55,58
+Coordinates=185,10,47,51
 
 [Label6]
-Coordinates=458,212,53,58
+Coordinates=458,212,46,51
 
 [Label12]
-Coordinates=73,144,60,58
+Coordinates=73,144,52,51
 
 [Label2]
-Coordinates=10,144,53,58
+Coordinates=10,144,46,51
 
 [edPais]
-Coordinates=320,10,54,58
+Coordinates=320,10,47,51
 
 [edLogradouro]
-Coordinates=449,144,94,58
+Coordinates=449,144,84,51
 
 [cbEstados]
-Coordinates=10,10,101,124
+Coordinates=10,10,84,105
 
 [edCPF]
-Coordinates=121,10,54,58
+Coordinates=121,10,46,51
 
 []
-Coordinates=577,1,91,36
+Coordinates=571,370,82,33
+
+[btGravar]
+Coordinates=394,352,57,51
+
+[btAlterar]
+Coordinates=266,369,57,51
+
+[acProcurar]
+Coordinates=325,301,68,33
+
+[btExcluir]
+Coordinates=394,80,58,51
+
+[acGravar]
+Coordinates=256,301,59,33
+
+[btFechar]
+Coordinates=227,80,57,51
+
+[acFechar]
+Coordinates=187,301,59,33
+
+[ImageList1]
+Coordinates=571,80,68,33
+
+[acExcluir]
+Coordinates=571,214,60,33
+
+[ActionList1]
+Coordinates=571,266,70,33
+
+[acNovo]
+Coordinates=340,80,51,33
+
+[acCancelar]
+Coordinates=571,318,69,33
+
+[btNovo]
+Coordinates=113,80,49,51
+
+[acAlterar]
+Coordinates=512,372,58,33
+
+[btProcurar]
+Coordinates=394,282,66,51
+
+[btCancelar]
+Coordinates=325,369,67,51
 
