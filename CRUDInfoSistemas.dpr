@@ -8,7 +8,8 @@ uses
   ModelClienteIntf in 'Interfaces\ModelClienteIntf.pas',
   ModelCliente in 'Models\ModelCliente.pas',
   ViewPresenterClienteIntf in 'Interfaces\ViewPresenterClienteIntf.pas',
-  PresenterCliente in 'Presenters\PresenterCliente.pas';
+  PresenterCliente in 'Presenters\PresenterCliente.pas',
+  ProcurarForm in 'Commons\ProcurarForm.pas' {FormProcurar};
 
 {$R *.res}
 

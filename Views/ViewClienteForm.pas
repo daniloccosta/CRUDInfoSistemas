@@ -7,7 +7,7 @@ uses
   System.UITypes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   ViewPresenterClienteIntf, Cliente, PresenterCliente, Generics.Collections,
   ModelClienteIntf, Vcl.StdCtrls, Vcl.Mask, Vcl.Buttons, System.ImageList,
-  Vcl.ImgList, System.Actions, Vcl.ActnList;
+  Vcl.ImgList, System.Actions, Vcl.ActnList, System.Contnrs, Vcl.ComCtrls;
 
 type
   TEstadosTela = (eVisualizando, eInserindo, eAlterando, eInativo);
@@ -81,6 +81,8 @@ type
     procedure BloquearTelaParaEdicao(const Bloqueio: Boolean);
     function CamposPreenchidos: Boolean;
     procedure GravarDados;
+    function Procurar(Lista: TObjectList; Colunas: TListColumns): TCliente;
+    procedure CarregarDadosCliente;
   public
     { Public declarations }
     function ShowView: TModalResult;
@@ -96,7 +98,7 @@ implementation
 
 {$R *.dfm}
 
-uses ModelCliente;
+uses ModelCliente, ProcurarForm;
 
 { TCadClientesForm }
 
@@ -196,8 +198,63 @@ begin
 end;
 
 procedure TCadClientesForm.acProcurarExecute(Sender: TObject);
+var
+  Lista: TListView;
+  Column: TListColumn;
+  Retorno, Cli: TCliente;
+  ListaDeClientes: TObjectList;
+  i: Integer;
 begin
-  //
+  //verifica o estado da tela antes de executar a rotina
+  if Not (EstadoTela in [eInativo, eVisualizando]) then
+    Exit;
+
+  Lista := TListView.Create(Self);
+  ListaDeClientes := TObjectList.Create;
+  try
+    Lista.Parent := Self;
+    Lista.Visible := False;
+
+    //Carregando ListColumns
+    Lista.Columns.Clear;
+    Column := Lista.Columns.Add;
+    Column.Caption := 'Nome';
+    Column.Width := 130;
+    Column := Lista.Columns.Add;
+    Column.Caption := 'Telefone';
+    Column.Width := 90;
+    Column := Lista.Columns.Add;
+    Column.Caption := 'Logradouro';
+    Column.Width := 130;
+    Column.Caption := 'Bairro';
+    Column.Width := 90;
+
+    //Carrega lista de clientes
+    FClientes := Presenter.ListAll;
+    for i := 0 to FClientes.Count - 1 do
+    begin
+      Cli := TCliente.Create;
+      Cli := FClientes.Items[i];
+      ListaDeClientes.Add(Cli);
+    end;
+
+    //Chama tela de Procura
+    Retorno := Procurar(ListaDeClientes, Lista.Columns);
+    if (Retorno <> nil) then
+    begin
+      //Carrega dados do cliente na tela
+      Cliente := Retorno;
+      CarregarDadosCliente;
+
+      //Atualiza o estado da tela
+      EstadoTela := eVisualizando;
+      HabilitaBotoes;
+    end;
+  finally
+    FreeAndNil(Lista);
+    //FreeAndNil(ListaDeClientes);
+    //FreeAndNil(Cli);
+  end;
 end;
 
 procedure TCadClientesForm.BloquearTelaParaEdicao(const Bloqueio: Boolean);
@@ -252,6 +309,23 @@ begin
   end;
 end;
 
+procedure TCadClientesForm.CarregarDadosCliente;
+begin
+  edNome.Text := Cliente.Nome;
+  edIdentidade.Text := Cliente.Identidade;
+  edCPF.Text := Cliente.CPF;
+  edTelefone.Text := Cliente.Telefone;
+  edEmail.Text := Cliente.Email;
+  edCEP.Text := Cliente.Endereco.CEP;
+  edLogradouro.Text := Cliente.Endereco.Logradouro;
+  edNumero.Text := Cliente.Endereco.Numero;
+  edComplemento.Text := Cliente.Endereco.Complemento;
+  edBairro.Text := Cliente.Endereco.Bairro;
+  edCidade.Text := Cliente.Endereco.Cidade;
+  cbEstados.ItemIndex := cbEstados.Items.IndexOf(Cliente.Endereco.Estado);
+  edPais.Text := Cliente.Endereco.Pais;
+end;
+
 procedure TCadClientesForm.FormCreate(Sender: TObject);
 begin
   FCliente := TCliente.Create;
@@ -288,7 +362,9 @@ end;
 
 procedure TCadClientesForm.GravarDados;
 begin
-  FCliente := TCliente.Create;
+  //Instanciar novo cliente, somente se estiver inserindo
+  if (EstadoTela = eInserindo) then
+    FCliente := TCliente.Create;
 
   Cliente.Nome := Trim(edNome.Text);
   Cliente.Identidade := Trim(edIdentidade.Text);
@@ -304,7 +380,9 @@ begin
   Cliente.Endereco.Estado := cbEstados.Text;
   Cliente.Endereco.Pais := Trim(edPais.Text);
 
-  Presenter.Add;
+  if (EstadoTela = eInserindo) then
+    Presenter.Add
+  else Presenter.Update;
 end;
 
 procedure TCadClientesForm.HabilitaBotoes;
@@ -341,6 +419,28 @@ begin
       TMaskEdit(Components[i]).Text := '';
   end;
   cbEstados.ItemIndex := -1;
+end;
+
+function TCadClientesForm.Procurar(Lista: TObjectList;
+  Colunas: TListColumns): TCliente;
+var
+  i: Integer;
+  mr: TModalResult;
+begin
+  FormProcurar := TFormProcurar.Create(Nil);
+  FormProcurar.Lista := Lista;
+  FormProcurar.lvProcurar.Columns := Colunas;
+  mr := FormProcurar.ShowModal;
+
+  if (FormProcurar.lvProcurar.Selected = Nil)
+  or (Lista.Count = 0) or (mr <> mrOk) then
+    Result := nil
+  else begin
+    i := FormProcurar.lvProcurar.Selected.Index;
+    Result := TCliente(FormProcurar.ItensListados[i]);
+  end;
+
+  FreeAndNil(FormProcurar);
 end;
 
 procedure TCadClientesForm.SetCliente(Value: TCliente);
