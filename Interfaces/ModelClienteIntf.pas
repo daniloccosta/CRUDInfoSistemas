@@ -9,9 +9,9 @@ type
     ['{CDB069C6-31CB-4F4E-8C0F-07DC1F985BC2}']
     function GetCliente: TCliente;
     procedure SetCliente(Value: TCliente);
-    procedure Add;
+    function Add: Boolean;
     function Get: TCliente;
-    procedure Update;
+    function Update: Boolean;
     procedure Delete;
     function ListAll: TList<TCliente>;
     property Cliente: TCliente read GetCliente write SetCliente;

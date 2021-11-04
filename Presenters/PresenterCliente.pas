@@ -15,9 +15,9 @@ type
     function GetView: IViewCliente;
     procedure SetView(const Value: IViewCliente);
   public
-    procedure Add;
+    function Add: Boolean;
     function Get: TCliente;
-    procedure Update;
+    function Update: Boolean;
     procedure Delete;
     function ListAll: TList<TCliente>;
 
@@ -29,12 +29,14 @@ implementation
 
 { TPresenterCliente }
 
-procedure TPresenterCliente.Add;
+function TPresenterCliente.Add: Boolean;
 begin
   Model.Cliente := View.Cliente;
-  Model.Add;
-  //Inicializa novo cliente na View
-  View.Cliente := TCliente.Create;
+  Result := Model.Add;
+
+  if Result then
+    //Inicializa novo cliente na View
+    View.Cliente := TCliente.Create;
 end;
 
 procedure TPresenterCliente.Delete;
@@ -74,10 +76,10 @@ begin
   FView := Value;
 end;
 
-procedure TPresenterCliente.Update;
+function TPresenterCliente.Update: Boolean;
 begin
   Model.Cliente := View.Cliente;
-  Model.Update;
+  Result := Model.Update;
 end;
 
 end.

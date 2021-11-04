@@ -276,6 +276,7 @@ object CadClientesForm: TCadClientesForm
     MaxLength = 10
     TabOrder = 5
     Text = ''
+    OnExit = edCEPExit
   end
   object btNovo: TBitBtn
     Left = 16

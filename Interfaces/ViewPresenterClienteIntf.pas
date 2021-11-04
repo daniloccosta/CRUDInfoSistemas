@@ -26,9 +26,9 @@ type
     function GetView: IViewCliente;
     procedure SetView(const Value: IViewCliente);
 
-    procedure Add;
+    function Add: Boolean;
     function Get: TCliente;
-    procedure Update;
+    function Update: Boolean;
     procedure Delete;
     function ListAll: TList<TCliente>;
 

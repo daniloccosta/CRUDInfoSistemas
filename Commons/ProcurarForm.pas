@@ -23,6 +23,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure lvProcurarData(Sender: TObject; Item: TListItem);
+    procedure btOkClick(Sender: TObject);
   private
     { Private declarations }
     procedure AplicarFiltro(Const Filtro: String);
@@ -60,6 +61,12 @@ begin
   finally
     lvProcurar.Items.EndUpdate;
   end;
+end;
+
+procedure TFormProcurar.btOkClick(Sender: TObject);
+begin
+  Close;
+  ModalResult := btOk.ModalResult;
 end;
 
 procedure TFormProcurar.edProcurarChange(Sender: TObject);
@@ -104,7 +111,7 @@ procedure TFormProcurar.lvProcurarData(Sender: TObject; Item: TListItem);
 var
   Cliente: TCliente;
 begin
-  Cliente := TCliente.Create;
+  //Cliente := TCliente.Create;
   Cliente := TCliente(ItensListados.Items[Item.Index]);
   Item.Caption := Cliente.Nome;
   Item.SubItems.Add(Cliente.Telefone);
@@ -114,7 +121,7 @@ end;
 
 procedure TFormProcurar.lvProcurarDblClick(Sender: TObject);
 begin
-  Self.Close;
+  btOkClick(btOk);
 end;
 
 procedure TFormProcurar.lvProcurarKeyPress(Sender: TObject; var Key: Char);

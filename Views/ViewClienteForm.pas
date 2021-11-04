@@ -7,10 +7,10 @@ uses
   System.UITypes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   ViewPresenterClienteIntf, Cliente, PresenterCliente, Generics.Collections,
   ModelClienteIntf, Vcl.StdCtrls, Vcl.Mask, Vcl.Buttons, System.ImageList,
-  Vcl.ImgList, System.Actions, Vcl.ActnList, System.Contnrs, Vcl.ComCtrls;
+  Vcl.ImgList, System.Actions, Vcl.ActnList, System.Contnrs, System.Math, Vcl.ComCtrls,
+  Utils;
 
 type
-  TEstadosTela = (eVisualizando, eInserindo, eAlterando, eInativo);
   TCadClientesForm = class(TForm, IViewCliente)
     Label1: TLabel;
     edNome: TEdit;
@@ -63,6 +63,7 @@ type
     procedure acExcluirExecute(Sender: TObject);
     procedure acProcurarExecute(Sender: TObject);
     procedure acFecharExecute(Sender: TObject);
+    procedure edCEPExit(Sender: TObject);
   private
     { Private declarations }
     FCliente: TCliente;
@@ -79,10 +80,10 @@ type
     procedure HabilitaBotoes;
     procedure LimparTela;
     procedure BloquearTelaParaEdicao(const Bloqueio: Boolean);
-    function CamposPreenchidos: Boolean;
-    procedure GravarDados;
+    function GravarDados: Boolean;
     function Procurar(Lista: TObjectList; Colunas: TListColumns): TCliente;
     procedure CarregarDadosCliente;
+    procedure BuscarCEP;
   public
     { Public declarations }
     function ShowView: TModalResult;
@@ -98,7 +99,7 @@ implementation
 
 {$R *.dfm}
 
-uses ModelCliente, ProcurarForm;
+uses ModelCliente, ProcurarForm, ViaCEP.Model, ViaCEP.Intf, ViaCEP.Core;
 
 { TCadClientesForm }
 
@@ -165,11 +166,9 @@ begin
   if Not (EstadoTela in [eInserindo, eAlterando]) then
     Exit;
 
-  //Verifica se os campos estão preenchidos. Se ok, salva.
-  if CamposPreenchidos then
+  //Verifica se os dados foram gravados.
+  if GravarDados then
   begin
-    GravarDados;
-
     //Limpa tela
     LimparTela;
 
@@ -194,6 +193,9 @@ begin
   //Limpa os campos da tela
   LimparTela;
 
+  //Instancia novo cliente
+  FCliente := TCliente.Create;
+
   edNome.SetFocus;
 end;
 
@@ -201,7 +203,7 @@ procedure TCadClientesForm.acProcurarExecute(Sender: TObject);
 var
   Lista: TListView;
   Column: TListColumn;
-  Retorno, Cli: TCliente;
+  Retorno: TCliente;
   ListaDeClientes: TObjectList;
   i: Integer;
 begin
@@ -233,9 +235,7 @@ begin
     FClientes := Presenter.ListAll;
     for i := 0 to FClientes.Count - 1 do
     begin
-      Cli := TCliente.Create;
-      Cli := FClientes.Items[i];
-      ListaDeClientes.Add(Cli);
+      ListaDeClientes.Add(FClientes.Items[i]);
     end;
 
     //Chama tela de Procura
@@ -270,42 +270,38 @@ begin
   cbEstados.Enabled := Not Bloqueio;
 end;
 
-function TCadClientesForm.CamposPreenchidos: Boolean;
+procedure TCadClientesForm.BuscarCEP;
 var
-  i: Integer;
+  ViaCEP: IViaCEP;
+  CEP: TViaCEPClass;
+  SaveCursor: TCursor;
 begin
-  Result := True;
-
-  //Componentes com tag = 1 são de preenchimento obrigatório
-  //Todas as labels devem estar com o FocusControl corretamente configurado
-  for i := 0 to Self.ComponentCount - 1 do
+  ViaCEP := TViaCEP.Create;
+  if ViaCEP.Validate(edCEP.Text) then
   begin
-    if (Components[i].ClassType = TLabel) then
-      if (TLabel(Components[i]).Tag = 1) then
-      begin
-        if (TLabel(Components[i]).FocusControl.ClassType = TEdit)
-        or (TLabel(Components[i]).FocusControl.ClassType = TMaskEdit) then
-        begin
-          if (Trim(TEdit(TLabel(Components[i]).FocusControl).Text) = '') then
-          begin
-            MessageDlg('O campo "'+ TLabel(Components[i]).Caption +'" deve ser preenchido.',
-              mtWarning, [mbOk], 0);
-            TEdit(TLabel(Components[i]).FocusControl).SetFocus;
-            Result := False;
-            Break;
-          end;
-        end
-        else if (TLabel(Components[i]).FocusControl.ClassType = TComboBox) then
-          if (TComboBox(TLabel(Components[i]).FocusControl).ItemIndex = -1) then
-          begin
-            MessageDlg('O campo "'+ TLabel(Components[i]).Caption +'" deve ser preenchido.',
-              mtWarning, [mbOk], 0);
-            TComboBox(TLabel(Components[i]).FocusControl).SetFocus;
-            Result := False;
-            Break;
-          end;
+    SaveCursor := Self.Cursor;
+    try
+      Self.Cursor := crHourGlass;
+      CEP := ViaCEP.Get(edCEP.Text);
+    finally
+      Self.Cursor := SaveCursor;
+    end;
 
-      end;
+
+    if Not Assigned(CEP) then
+    begin
+      MessageDlg('CEP não localizado.', mtINformation, [mbOk], 0);
+      Exit;
+    end;
+    try
+      edLogradouro.Text := CEP.Logradouro;
+      edComplemento.Text := CEP.Complemento;
+      edBairro.Text := CEP.Bairro;
+      edCidade.Text := CEP.Localidade;
+      cbEstados.ItemIndex := cbEstados.Items.IndexOf(CEP.UF);
+    finally
+      CEP.Free;
+    end;
   end;
 end;
 
@@ -326,8 +322,22 @@ begin
   edPais.Text := Cliente.Endereco.Pais;
 end;
 
-procedure TCadClientesForm.FormCreate(Sender: TObject);
+procedure TCadClientesForm.edCEPExit(Sender: TObject);
 begin
+  if (EstadoTela in [eInserindo, eAlterando]) then
+    BuscarCEP;
+end;
+
+procedure TCadClientesForm.FormCreate(Sender: TObject);
+var
+  AppFolder: String;
+begin
+  //Criar pasta para o programa, se não existir!
+  AppFolder := GetAppDataFolder;
+  if Not DirectoryExists(AppFolder) then
+    ForceDirectories(AppFolder);
+
+  //Instancia objetos
   FCliente := TCliente.Create;
   FClientes := TList<TCliente>.Create;
 
@@ -360,11 +370,12 @@ begin
   Result := FPresenter;
 end;
 
-procedure TCadClientesForm.GravarDados;
+function TCadClientesForm.GravarDados: Boolean;
 begin
   //Instanciar novo cliente, somente se estiver inserindo
-  if (EstadoTela = eInserindo) then
-    FCliente := TCliente.Create;
+//  if (EstadoTela = eInserindo) then
+//    FCliente := TCliente.Create;
+// CÓDIGO ACIMA MOVIDO PARA ACNOVO.ONEXECUTE
 
   Cliente.Nome := Trim(edNome.Text);
   Cliente.Identidade := Trim(edIdentidade.Text);
@@ -381,8 +392,8 @@ begin
   Cliente.Endereco.Pais := Trim(edPais.Text);
 
   if (EstadoTela = eInserindo) then
-    Presenter.Add
-  else Presenter.Update;
+    Result := Presenter.Add
+  else Result := Presenter.Update;
 end;
 
 procedure TCadClientesForm.HabilitaBotoes;

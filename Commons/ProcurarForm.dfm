@@ -66,6 +66,7 @@ object FormProcurar: TFormProcurar
     Kind = bkOK
     NumGlyphs = 2
     TabOrder = 2
+    OnClick = btOkClick
   end
   object btCancel: TBitBtn
     Left = 289

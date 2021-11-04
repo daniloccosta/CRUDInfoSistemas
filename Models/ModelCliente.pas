@@ -2,22 +2,26 @@ unit ModelCliente;
 
 interface
 
-uses ModelClienteIntf, Cliente, Generics.Collections;
+uses ModelClienteIntf, Cliente, Generics.Collections, Vcl.Dialogs,
+  System.SysUtils, System.UITypes, Xml.XMLDoc, Xml.XMLIntf;
 
 type
   TModelCliente = class(TInterfacedObject, IModelCliente)
   private
     FCliente: TCliente;
     FClientes: TList<TCliente>;
+    FXMLDoc: TXMLDocument;
     function GetIndex(Id: Integer): Integer;
+    function CamposRequeridosPreenchidos: Boolean;
+    procedure SalvarXML;
   protected
     function GetCliente: TCliente;
     procedure SetCliente(Value: TCliente);
   public
     constructor Create;
-    procedure Add;
+    function Add: Boolean;
     function Get: TCliente;
-    procedure Update;
+    function Update: Boolean;
     procedure Delete;
     function ListAll: TList<TCliente>;
     property Cliente: TCliente read GetCliente write SetCliente;
@@ -26,10 +30,88 @@ implementation
 
 { TModelCliente }
 
-procedure TModelCliente.Add;
+uses Utils;
+
+function TModelCliente.Add: Boolean;
 begin
+  Result := False;
   Cliente.Id := FClientes.Count + 1;
-  FClientes.Add(Cliente);
+  if CamposRequeridosPreenchidos then
+  begin
+    FClientes.Add(Cliente);
+    SalvarXML;
+    Result := True;
+  end;
+end;
+
+function TModelCliente.CamposRequeridosPreenchidos: Boolean;
+begin
+  Result := False;
+  if (Trim(Cliente.Nome) = '') then
+  begin
+    MessageDlg('O Nome do cliente precisa ser informado.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+//  if (Trim(Cliente.Identidade = '') then
+  if (Trim(Cliente.CPF) = '') then
+  begin
+    MessageDlg('O campo CPF precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+
+  if Not ValidarCPF(Cliente.CPF) then
+  begin
+    MessageDlg('O CPF é inválido, por favor corrija.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+
+  if (Trim(Cliente.Telefone) = '') then
+  begin
+    MessageDlg('O campo Telefone precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Email) = '') then
+  begin
+    MessageDlg('O campo E-mail precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Endereco.CEP) = '') then
+  begin
+    MessageDlg('O cacmpo CEP precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Endereco.Logradouro) = '') then
+  begin
+    MessageDlg('O campo Logradouro precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Endereco.Numero) = '') then
+  begin
+    MessageDlg('O campo Número precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+//  if (Trim(Cliente.Endereco.Complemento) = '') then
+  if (Trim(Cliente.Endereco.Bairro) = '') then
+  begin
+    MessageDlg('O campo Bairro precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Endereco.Cidade) = '') then
+  begin
+    MessageDlg('O campo Cidade precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Endereco.Estado) = '') then
+  begin
+    MessageDlg('O campo Estado precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  if (Trim(Cliente.Endereco.Pais) = '') then
+  begin
+    MessageDlg('O campo País precisa ser preenchido.', mtWarning, [mbOk], 0);
+    Exit;
+  end;
+  Result := True;
 end;
 
 constructor TModelCliente.Create;
@@ -83,18 +165,62 @@ begin
   Result := FClientes;
 end;
 
+procedure TModelCliente.SalvarXML;
+var
+  XMLFileName: String;
+  CliNode, EnderNode: IXMLNode;
+begin
+  FXMLDoc := TXMLDocument.Create(Nil);
+  FXMLDoc.Active := False;
+  FXMLDoc.Active := True;
+  CliNode := FXMLDoc.AddChild('Cliente');
+  try
+    CliNode.ChildValues['ID'] := Cliente.Id;
+    CliNode.ChildValues['Nome'] := Cliente.Nome;
+    CliNode.ChildValues['Identidade'] := Cliente.Identidade;
+    CliNode.ChildValues['CPF'] := Cliente.CPF;
+    CliNode.ChildValues['Telefone'] := Cliente.Telefone;
+    CliNode.ChildValues['Email'] := Cliente.Email;
+
+    EnderNode := CliNode.AddChild('Endereco');
+    EnderNode.ChildValues['CEP'] := Cliente.Endereco.CEP;
+    EnderNode.ChildValues['Logradouro'] := Cliente.Endereco.Logradouro;
+    EnderNode.ChildValues['Numero'] := Cliente.Endereco.Numero;
+    EnderNode.ChildValues['Complemento'] := Cliente.Endereco.Complemento;
+    EnderNode.ChildValues['Bairro'] := Cliente.Endereco.Bairro;
+    EnderNode.ChildValues['Cidade'] := Cliente.Endereco.Cidade;
+    EnderNode.ChildValues['Estado'] := Cliente.Endereco.Estado;
+    EnderNode.ChildValues['Pais'] := Cliente.Endereco.Pais;
+
+    XMLFileName := GetAppDataFolder + StringReplace(FCliente.Nome, ' ', '_', [rfReplaceAll]) +'.xml';
+    FXMLDoc.FileName := XMLFileName;
+    FXMLDoc.SaveToFile(FXMLDoc.FileName);
+  finally
+    FXMLDoc.Active := False;
+    FXMLDoc := Nil;
+    FXMLDoc.Free;
+  end;
+end;
+
 procedure TModelCliente.SetCliente(Value: TCliente);
 begin
   FCliente := Value;
 end;
 
-procedure TModelCliente.Update;
+function TModelCliente.Update: Boolean;
 var
   Index: Integer;
 begin
+  Result := False;
   Index := GetIndex(Cliente.Id);
   if (Index > -1) then
-    FClientes.Items[Index] := Cliente;
+  begin
+    if CamposRequeridosPreenchidos then
+    begin
+      FClientes.Items[Index] := Cliente;
+      Result := True;
+    end;
+  end;
 end;
 
 end.

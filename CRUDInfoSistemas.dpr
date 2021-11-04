@@ -9,7 +9,12 @@ uses
   ModelCliente in 'Models\ModelCliente.pas',
   ViewPresenterClienteIntf in 'Interfaces\ViewPresenterClienteIntf.pas',
   PresenterCliente in 'Presenters\PresenterCliente.pas',
-  ProcurarForm in 'Commons\ProcurarForm.pas' {FormProcurar};
+  ProcurarForm in 'Commons\ProcurarForm.pas' {FormProcurar},
+  Utils in 'Commons\Utils.pas',
+  ViaCEP.Model in 'ViaCEP\ViaCEP.Model.pas',
+  ViaCEP.Intf in 'ViaCEP\ViaCEP.Intf.pas',
+  ViaCEP.Core in 'ViaCEP\ViaCEP.Core.pas',
+  SendEmailForm in 'Views\SendEmailForm.pas' {Form1};
 
 {$R *.res}
 
@@ -17,5 +22,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TCadClientesForm, CadClientesForm);
+  Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.
