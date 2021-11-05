@@ -7,11 +7,32 @@ type
 
 function ValidarCPF(sCPF: String): Boolean;
 function GetAppDataFolder: String;
+procedure SomenteNumeros(Componente: TObject; var Key: Char; isDecimal: Boolean = False);
 
 implementation
 
 uses
-  System.Math, System.SysUtils, ShlObj, Winapi.Windows;
+  System.Math, System.SysUtils, ShlObj, Winapi.Windows, Vcl.StdCtrls;
+
+procedure SomenteNumeros(Componente: TObject; var Key: Char; isDecimal: Boolean = False);
+begin
+  if not isDecimal then
+  begin
+    if not (CharInSet(Key, ['0'..'9', Chr(8), Char(13)])) then
+      Key := #0
+  end
+  else
+  begin
+    if (Key = #46) then
+      Key := FormatSettings.DecimalSeparator;
+
+    if not (CharInSet(Key, ['0'..'9', Chr(8), FormatSettings.DecimalSeparator])) then
+      Key := #0
+    else
+      if (Key = FormatSettings.DecimalSeparator) and (Pos(Key, TEdit(Componente).Text) > 0) then
+        Key := #0;
+  end;
+end;
 
 function GetAppDataFolder: String;
 const

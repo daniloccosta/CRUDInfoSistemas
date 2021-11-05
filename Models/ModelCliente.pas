@@ -14,6 +14,7 @@ type
     function GetIndex(Id: Integer): Integer;
     function CamposRequeridosPreenchidos: Boolean;
     procedure SalvarXML;
+    procedure EnviarCadastroPorEmail;
   protected
     function GetCliente: TCliente;
     procedure SetCliente(Value: TCliente);
@@ -30,7 +31,7 @@ implementation
 
 { TModelCliente }
 
-uses Utils;
+uses Utils, SendEmailForm;
 
 function TModelCliente.Add: Boolean;
 begin
@@ -41,6 +42,9 @@ begin
     FClientes.Add(Cliente);
     SalvarXML;
     Result := True;
+    //Coloquei o envio após confirmada a inclusão do registro,
+    //para evitar que problemas no envio atrapalhem a conclusão do cadastro
+    EnviarCadastroPorEmail
   end;
 end;
 
@@ -130,6 +134,20 @@ begin
     FClientes.Delete(Index);
 end;
 
+procedure TModelCliente.EnviarCadastroPorEmail;
+begin
+  FormSendMail := TFormSendMail.Create(Nil);
+  try
+    if FormSendMail.ServidorConfigurado then
+      FormSendMail.EnviarEmail(Cliente)
+    else
+      FormSendMail.Configurar;
+
+  finally
+    FreeAndNil(FormSendMail);
+  end;
+end;
+
 function TModelCliente.Get: TCliente;
 var
   Index: Integer;
@@ -192,7 +210,7 @@ begin
     EnderNode.ChildValues['Estado'] := Cliente.Endereco.Estado;
     EnderNode.ChildValues['Pais'] := Cliente.Endereco.Pais;
 
-    XMLFileName := GetAppDataFolder + StringReplace(FCliente.Nome, ' ', '_', [rfReplaceAll]) +'.xml';
+    XMLFileName := GetAppDataFolder + FCliente.Id.ToString +'.xml';
     FXMLDoc.FileName := XMLFileName;
     FXMLDoc.SaveToFile(FXMLDoc.FileName);
   finally

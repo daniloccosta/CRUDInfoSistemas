@@ -13,6 +13,7 @@ object CadClientesForm: TCadClientesForm
   KeyPreview = True
   OnCreate = FormCreate
   OnKeyPress = FormKeyPress
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 15
   object Label1: TLabel

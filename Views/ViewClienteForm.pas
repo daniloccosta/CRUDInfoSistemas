@@ -64,6 +64,7 @@ type
     procedure acProcurarExecute(Sender: TObject);
     procedure acFecharExecute(Sender: TObject);
     procedure edCEPExit(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     FCliente: TCliente;
@@ -84,6 +85,7 @@ type
     function Procurar(Lista: TObjectList; Colunas: TListColumns): TCliente;
     procedure CarregarDadosCliente;
     procedure BuscarCEP;
+    procedure AdicionarDadosTeste;
   public
     { Public declarations }
     function ShowView: TModalResult;
@@ -99,7 +101,8 @@ implementation
 
 {$R *.dfm}
 
-uses ModelCliente, ProcurarForm, ViaCEP.Model, ViaCEP.Intf, ViaCEP.Core;
+uses ModelCliente, ProcurarForm, ViaCEP.Model, ViaCEP.Intf, ViaCEP.Core,
+  SendEmailForm;
 
 { TCadClientesForm }
 
@@ -257,6 +260,51 @@ begin
   end;
 end;
 
+procedure TCadClientesForm.AdicionarDadosTeste;
+begin
+  //Instancia novo cliente
+  FCliente := TCliente.Create;
+
+  //Preenche os dados
+  Cliente.Nome := 'ARI TOLEDO';
+  Cliente.Identidade := '5241236';
+  Cliente.CPF := '48528910873';
+  Cliente.Telefone := '11123456789';
+  Cliente.Email := 'aritoledo@gmail.com';
+  Cliente.Endereco.CEP := '11222345';
+  Cliente.Endereco.Logradouro := 'RUA TARARA';
+  Cliente.Endereco.Numero := '100';
+  Cliente.Endereco.Complemento := '';
+  Cliente.Endereco.Bairro := 'CENTRO';
+  Cliente.Endereco.Cidade := 'ITAQUAQUECETUBA';
+  Cliente.Endereco.Estado := 'SP';
+  Cliente.Endereco.Pais := 'BRASIL';
+
+  //Adiciona
+  Presenter.Add;
+
+  //Instancia novo cliente
+  FCliente := TCliente.Create;
+
+  //Preenche os dados
+  Cliente.Nome := 'SÔNIA LIMA';
+  Cliente.Identidade := '54687965';
+  Cliente.CPF := '02789435006';
+  Cliente.Telefone := '71985215138';
+  Cliente.Email := 'sonialima@gmail.com';
+  Cliente.Endereco.CEP := '11222345';
+  Cliente.Endereco.Logradouro := 'RUA BABEBIBOBU';
+  Cliente.Endereco.Numero := '1054';
+  Cliente.Endereco.Complemento := '';
+  Cliente.Endereco.Bairro := 'CENTRO';
+  Cliente.Endereco.Cidade := 'PINDAMONHANGABA';
+  Cliente.Endereco.Estado := 'SP';
+  Cliente.Endereco.Pais := 'BRASIL';
+
+  //Adiciona
+  Presenter.Add;
+end;
+
 procedure TCadClientesForm.BloquearTelaParaEdicao(const Bloqueio: Boolean);
 var
   i: Integer;
@@ -358,6 +406,22 @@ begin
     Key := #0;
     SelectNext(ActiveControl, True, True);
   end;
+end;
+
+procedure TCadClientesForm.FormShow(Sender: TObject);
+begin
+  //Configurar Serviço de envio de e-mails
+  FormSendMail := TFormSendMail.Create(Nil);
+  try
+    if Not FormSendMail.ServidorConfigurado then
+      FormSendMail.Configurar;
+
+  finally
+    FreeAndNil(FormSendMail);
+  end;
+
+  //Adicionar dados de testes
+  AdicionarDadosTeste;
 end;
 
 function TCadClientesForm.GetCliente: TCliente;

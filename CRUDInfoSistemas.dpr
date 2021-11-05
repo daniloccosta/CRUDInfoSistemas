@@ -14,7 +14,7 @@ uses
   ViaCEP.Model in 'ViaCEP\ViaCEP.Model.pas',
   ViaCEP.Intf in 'ViaCEP\ViaCEP.Intf.pas',
   ViaCEP.Core in 'ViaCEP\ViaCEP.Core.pas',
-  SendEmailForm in 'Views\SendEmailForm.pas' {Form1};
+  SendEmailForm in 'Views\SendEmailForm.pas' {FormSendMail};
 
 {$R *.res}
 
@@ -22,6 +22,5 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TCadClientesForm, CadClientesForm);
-  Application.CreateForm(TForm1, Form1);
   Application.Run;
 end.

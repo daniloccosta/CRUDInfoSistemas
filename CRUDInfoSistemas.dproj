@@ -121,7 +121,7 @@
         <DCCReference Include="ViaCEP\ViaCEP.Intf.pas"/>
         <DCCReference Include="ViaCEP\ViaCEP.Core.pas"/>
         <DCCReference Include="Views\SendEmailForm.pas">
-            <Form>Form1</Form>
+            <Form>FormSendMail</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
