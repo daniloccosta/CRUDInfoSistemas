@@ -21,4 +21,5 @@ O Objetivo da Aplicação é realizar um cadastro simples de cliente sem persist
 > - Também não coloquei uma validação para o conteudo digitado no campo de "E-mail", também fica como sugestão de melhoria.
 
   ![](Images/TelaProcurar.png)
- -⚡Através da tela "Procurar clientes" é possível consultar todos os registros cadastrados e abrí-los na tela principal para consulta ou edição.
+  
+- ⚡Através da tela "Procurar clientes" é possível consultar todos os registros cadastrados e abrí-los na tela principal para consulta ou edição.
