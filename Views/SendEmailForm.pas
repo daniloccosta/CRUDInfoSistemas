@@ -220,6 +220,8 @@ begin
     IniFile.WriteString('Email', 'Host', Trim(edHost.Text));
     IniFile.WriteBool('Email', 'Autenticado', ckRequeAuth.Checked);
     IniFile.WriteBool('Email', 'SSL', ckSSL.Checked);
+    if (Trim(edPort.Text) = '') then
+      edPort.Text := '0';
     IniFile.WriteInteger('Email', 'Port', StrToInt(Trim(edPort.Text)));
     IniFile.WriteString('Email', 'UserName', Trim(edUsername.Text));
     IniFile.WriteString('Email', 'Password', Trim(edPassword.Text));

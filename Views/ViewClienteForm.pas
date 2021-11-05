@@ -421,7 +421,7 @@ begin
   end;
 
   //Adicionar dados de testes
-  AdicionarDadosTeste;
+  //AdicionarDadosTeste;
 end;
 
 function TCadClientesForm.GetCliente: TCliente;
